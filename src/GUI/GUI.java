@@ -8,6 +8,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.util.Rotation;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 
@@ -19,20 +20,23 @@ import java.util.ArrayList;
 
 import Page_Replacer.*;
 
+
 public class GUI extends JFrame {
     private JPanel chartPanel;
+    private int pageHit;
+    private int pageFault;
 
     public GUI() {
         setTitle("Page Replacement Algorithm");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500, 500);
+        setSize(900, 500);
         setLocationRelativeTo(null);
 
         // 차트를 보여줄 패널 생성
         chartPanel = new JPanel();
 
         // 페이지 개수 입력 필드
-        JLabel pageLabel = new JLabel("페이지 개수:");
+        JLabel pageLabel = new JLabel("프레임 개수:");
         JTextField pageField = new JTextField(10);
 
         // 요구 페이지 입력 필드
@@ -58,12 +62,14 @@ public class GUI extends JFrame {
                 int algorithm = algorithmComboBox.getSelectedIndex() + 1;
 
                 ArrayList<Integer> requests = new ArrayList<>();
-                for(int i =0;i<convertRequests.length;i++){
-                    requests.add(convertRequests[i]);
-                }
+                for(int i : convertRequests)
+                    requests.add(i);
 
                 // 페이지 교체 알고리즘 실행
                 runPageReplacementAlgorithm(algorithm, pageCount, requests);
+
+                // 페이지 히트, 폴트 결과를 그래프로 그리기
+                drawChart();
             }
         });
 
@@ -84,47 +90,46 @@ public class GUI extends JFrame {
     }
 
     private int[] parseRequests(String input) {
-        char[] inputChar = input.toCharArray();
-        int[] requests = new int[inputChar.length];
-        for(int i =0;i<inputChar.length;i++){
-            try {
-                requests[i] = Integer.valueOf(inputChar[i]);
-            } catch (NumberFormatException e) {
-                // 숫자로 변환할 수 없는 값이 포함된 경우 오류 처리
-                e.printStackTrace();
-                // 혹은 다른 오류 처리 방식을 선택할 수 있습니다.
-            }
+        char[] convert = input.toCharArray();
+        int[] requests = new int[input.length()];
+        for(int i =0;i<convert.length;i++){
+            requests[i] = Integer.valueOf(convert[i]);
         }
 
         return requests;
     }
 
-
-    private void drawChart(int pageHit, int pageFault) {
+    private void drawChart() {
         // 차트 데이터 생성
         DefaultPieDataset dataset = new DefaultPieDataset();
-        dataset.setValue("페이지 히트", pageHit);
-        dataset.setValue("페이지 폴트", pageFault);
+        dataset.setValue("Page Hit", pageHit);
+        dataset.setValue("Page Fault", pageFault);
 
         // 차트 생성
-        JFreeChart chart = ChartFactory.createPieChart("페이지 히트 및 폴트 비율", dataset, true, true, false);
+        JFreeChart chart = ChartFactory.createPieChart("Page Hit & Fault Ratio", dataset, true, true, false);
 
-        // 차트 스타일 설정
+        // 차트 옵션 설정
         PiePlot plot = (PiePlot) chart.getPlot();
-        plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {1}"));
-        plot.setSectionPaint("페이지 히트", Color.GREEN);
-        plot.setSectionPaint("페이지 폴트", Color.RED);
+        plot.setLabelFont(new Font("D2Coding", Font.PLAIN, 12));
+        plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {1} ({2})"));
+        plot.setStartAngle(290);
+        plot.setDirection(Rotation.CLOCKWISE);
+        plot.setForegroundAlpha(0.7f);
 
-        // 차트 패널 초기화
-        chartPanel.removeAll();
-        chartPanel.setLayout(new BorderLayout());
-
-        // 차트 패널에 차트 추가
+        // 차트 패널 생성
         ChartPanel chartPanel = new ChartPanel(chart);
 
-        // 차트 패널 갱신
-        chartPanel.revalidate();
+        // 기존 차트 패널을 제거하고 새로운 차트 패널로 교체
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 500));
+        chartPanel.setDomainZoomable(true);
+        chartPanel.setRangeZoomable(true);
+        chartPanel.setMouseWheelEnabled(true);
+        chartPanel.setMouseZoomable(true);
+
+        // 차트 패널을 그래프 패널로 설정
+        chartPanel.validate();
         chartPanel.repaint();
+        setChartPanel(chartPanel);
     }
 
     private void runPageReplacementAlgorithm(int algorithm, int pageCount, ArrayList<Integer> requests) {
@@ -132,29 +137,34 @@ public class GUI extends JFrame {
 
         // 알고리즘 선택
         switch (algorithm) {
-            case 1: // Page_Replacer.OPT.OPT.FIFO
-                pageReplacementAlgorithm = new FIFO(pageCount,requests);
+            case 1: // FIFO
+                pageReplacementAlgorithm = new FIFO(pageCount, requests);
                 break;
-            case 2: // Page_Replacer.OPT.OPT.LRU
-                pageReplacementAlgorithm = new LRU(pageCount,requests);
+            case 2: // LRU
+                pageReplacementAlgorithm = new LRU(pageCount, requests);
                 break;
             case 3: // Clock
-                pageReplacementAlgorithm = new LRU_Clock(pageCount,requests);
+                pageReplacementAlgorithm = new LRU_Clock(pageCount, requests);
                 break;
-            case 4: // Page_Replacer.OPT.OPT
-                pageReplacementAlgorithm = new OPT(pageCount,requests);
+            case 4: // OPT
+                pageReplacementAlgorithm = new OPT(pageCount, requests);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid algorithm: " + algorithm);
         }
 
         // 페이지 교체 알고리즘 실행
-        int pageHit = pageReplacementAlgorithm.returnHit_Fault()[0];
-        int pageFault = pageReplacementAlgorithm.returnHit_Fault()[1];
+        int[] hitFault = pageReplacementAlgorithm.returnHit_Fault();
+        pageHit = hitFault[0];
+        pageFault = hitFault[1];
+    }
 
-
-        // 페이지 히트, 폴트 결과를 그래프로 그리기
-        drawChart(pageHit, pageFault);
+    private void setChartPanel(JPanel panel) {
+        getContentPane().remove(chartPanel);
+        chartPanel = panel;
+        getContentPane().add(chartPanel, BorderLayout.CENTER);
+        revalidate();
+        repaint();
     }
 
     public static void main(String[] args) {
@@ -166,3 +176,4 @@ public class GUI extends JFrame {
         });
     }
 }
+
