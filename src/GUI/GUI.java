@@ -13,6 +13,8 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 
 import javax.swing.*;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,11 +27,14 @@ public class GUI extends JFrame {
     private JPanel chartPanel;
     private int pageHit;
     private int pageFault;
+    private int frameNum;
+    private JScrollPane scrollPane;
+    private static final int width = 800, height = 600;
 
     public GUI() {
         setTitle("Page Replacement Algorithm");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(900, 500);
+        setSize(width, height);
         setLocationRelativeTo(null);
 
         // 차트를 보여줄 패널 생성
@@ -61,6 +66,12 @@ public class GUI extends JFrame {
                 int[] convertRequests = parseRequests(requestField.getText());
                 int algorithm = algorithmComboBox.getSelectedIndex() + 1;
 
+                if (pageCount < convertRequests.length) {
+                    JOptionPane.showMessageDialog(GUI.this, "프레임 개수는 요구 페이지 개수보다 크거나 같아야 합니다.", "경고", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                frameNum = pageCount;
                 ArrayList<Integer> requests = new ArrayList<>();
                 for(int i : convertRequests)
                     requests.add(i);
@@ -93,7 +104,7 @@ public class GUI extends JFrame {
         char[] convert = input.toCharArray();
         int[] requests = new int[input.length()];
         for(int i =0;i<convert.length;i++){
-            requests[i] = Integer.valueOf(convert[i]);
+            requests[i] = Integer.valueOf(convert[i]-48);
         }
 
         return requests;
@@ -157,15 +168,73 @@ public class GUI extends JFrame {
         int[] hitFault = pageReplacementAlgorithm.returnHit_Fault();
         pageHit = hitFault[0];
         pageFault = hitFault[1];
+
+        drawProcess(pageReplacementAlgorithm.returnStatus(),requests);
     }
 
     private void setChartPanel(JPanel panel) {
         getContentPane().remove(chartPanel);
         chartPanel = panel;
-        getContentPane().add(chartPanel, BorderLayout.CENTER);
+        chartPanel.setPreferredSize(new Dimension(500, 350)); // 차트 패널의 크기 조정
+
+        getContentPane().add(chartPanel, BorderLayout.NORTH);
         revalidate();
         repaint();
     }
+
+
+    private void drawProcess(ArrayList<ArrayList<Integer>> frameStatus, ArrayList<Integer> pageReferences) {
+        // 테이블 데이터 생성
+        int rowCount = frameStatus.size() + 1; // 프레임 상태 행 + 참조 페이지 행
+        Object[][] data = new Object[rowCount][frameNum];
+
+        // 프레임 상태 데이터 설정
+        for (int i = 0; i < rowCount - 1; i++) {
+            ArrayList<Integer> frames = frameStatus.get(i);
+            for (int j = 0; j < frameNum; j++) {
+                try {
+                    data[i][j] = frames.get(j);
+                }catch (IndexOutOfBoundsException e){
+
+                }
+            }
+        }
+
+        // 참조 페이지 데이터 설정
+        for (int j = 0; j < frameNum; j++) {
+            data[rowCount - 1][j] = pageReferences.get(j);
+        }
+
+        // 열 제목 생성
+        Object[] columnNames = new Object[frameNum];
+        for (int i = 0; i < frameNum; i++) {
+            columnNames[i] = "프레임 " + (i + 1);
+        }
+
+        // JTable 생성
+        JTable table = new JTable(data, columnNames);
+        table.setFont(new Font("D2Coding", Font.PLAIN, 15));
+
+
+        if (scrollPane != null) {
+            getContentPane().remove(scrollPane);
+        }
+
+        scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(800, 200)); // 스크롤 패널의 크기 조정
+
+        TableColumnModel columnModel = table.getColumnModel();
+        int columnWidth = 100; // 열의 크기를 원하는 값으로 지정
+        for (int i = 0; i < frameNum; i++) {
+            TableColumn column = columnModel.getColumn(i);
+            column.setPreferredWidth(columnWidth);
+        }
+
+        getContentPane().add(scrollPane, BorderLayout.SOUTH);
+        revalidate();
+        repaint();
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {

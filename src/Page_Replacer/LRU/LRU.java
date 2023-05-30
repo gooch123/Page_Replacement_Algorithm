@@ -77,6 +77,11 @@ public class LRU extends Replacer {
     }
 
     @Override
+    public ArrayList<ArrayList<Integer>> returnStatus() {
+        return frameStatus;
+    }
+
+    @Override
     public int[] returnHit_Fault() {
         int[] hit_fault = {pageHit,pageFault};
         return hit_fault;
