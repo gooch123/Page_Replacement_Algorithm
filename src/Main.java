@@ -1,10 +1,8 @@
-import com.sun.corba.se.impl.io.TypeMismatchException;
-import jdk.internal.util.xml.impl.Input;
-
 import java.util.*;
 import java.util.stream.IntStream;
 import FIFO.*;
 import OPT.*;
+import LRU.*;
 
 class Exec{
     ArrayList<Integer> pageList;
@@ -48,6 +46,7 @@ class Exec{
                     startOPT();
                     break;
                 case 6:
+                    startLRU();
                     break;
                 case 9:
                     testCase();
@@ -102,6 +101,8 @@ class Exec{
     void startOPT(){
         new OPT(frameNumber,pageList);
     }
+
+    void startLRU() {new LRU(frameNumber,pageList);}
 
     void testCase(){
         int[] caselist = {7,0,1,2,0,3,0,4,2,3,0,3,2,1,2,0,1,7,0,1};
