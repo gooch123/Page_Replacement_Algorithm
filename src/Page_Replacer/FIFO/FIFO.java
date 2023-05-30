@@ -1,10 +1,12 @@
-package FIFO;
+package Page_Replacer.FIFO;
+
+import Page_Replacer.Replacer;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class FIFO {
+public class FIFO extends Replacer {
     ArrayList<Integer> pageList;
     Queue<Integer> q;
     int pageFault = 0;
@@ -33,7 +35,12 @@ public class FIFO {
                 pageHit++;
             }
         }
-        System.out.println(String.format("FIFO >> pageHit : %d ,pageFault : %d",pageHit, pageFault));
+        System.out.println(String.format("FIFO >> pageHit : %3d ,pageFault : %3d",pageHit, pageFault));
     }
 
+    @Override
+    public int[] returnHit_Fault() {
+        int[] hit_fault = {pageHit,pageFault};
+        return hit_fault;
+    }
 }

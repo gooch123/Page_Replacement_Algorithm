@@ -1,8 +1,10 @@
-package LRU;
+package Page_Replacer.LRU;
+
+import Page_Replacer.Replacer;
 
 import java.util.ArrayList;
 
-public class LRU {
+public class LRU extends Replacer {
     int frameNum;
     int pageFault = 0;
     int pageHit = 0;
@@ -60,5 +62,11 @@ public class LRU {
         } catch (ArrayIndexOutOfBoundsException e){
             //frame 비어있음
         }
+    }
+
+    @Override
+    public int[] returnHit_Fault() {
+        int[] hit_fault = {pageHit,pageFault};
+        return hit_fault;
     }
 }

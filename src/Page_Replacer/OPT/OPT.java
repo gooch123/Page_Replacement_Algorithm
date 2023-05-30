@@ -1,9 +1,11 @@
-package OPT;
+package Page_Replacer.OPT;
+
+import Page_Replacer.Replacer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class OPT {
+public class OPT extends Replacer {
     ArrayList<Integer> pageList;
     ArrayList<Integer> frame;
     int pageFault =0;
@@ -39,7 +41,7 @@ public class OPT {
                 }
             }
         }
-        System.out.println(String.format("OPT >> pageHit : %d , pageFault : %d",pageHit,pageFault));
+        System.out.printf("OPT >> pageHit : %3d , pageFault : %3d%n",pageHit,pageFault);
     }
 
     private int getFarthestIndex(){
@@ -57,5 +59,11 @@ public class OPT {
             }
         }
         return index;
+    }
+
+    @Override
+    public int[] returnHit_Fault() {
+        int[] hit_fault = {pageHit,pageFault};
+        return hit_fault;
     }
 }

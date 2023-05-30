@@ -1,8 +1,10 @@
 import java.util.*;
 import java.util.stream.IntStream;
-import FIFO.*;
-import OPT.*;
-import LRU.*;
+
+import Page_Replacer.FIFO.FIFO;
+import Page_Replacer.LRU.LRU;
+import Page_Replacer.LRU_Clock.LRU_Clock;
+import Page_Replacer.OPT.OPT;
 
 class Exec{
     ArrayList<Integer> pageList;
@@ -21,7 +23,7 @@ class Exec{
             sc = new Scanner(System.in);
             System.out.println("---------------------Menu----------------------\n" +
                     "(1) : 요구 페이지 입력 (2) : 랜덤 페이지 입력 (3) : 프레임 개수 설정 (0) : 종료\n+" +
-                    "(4) : FIFO 실행 (5) : OPT 실행 (6) : LRU 실행 (9) : testCase 입력 >> ");
+                    "(4) : Page_Replacer.OPT.OPT.FIFO 실행 (5) : Page_Replacer.OPT.OPT 실행 (6) : Page_Replacer.OPT.OPT.LRU 실행 (7) : Clock 실행 (9) : testCase 입력 >> ");
             try {
                 menu = sc.nextInt();
                 if(menu == 0)
@@ -47,6 +49,9 @@ class Exec{
                     break;
                 case 6:
                     startLRU();
+                    break;
+                case 7:
+                    startClock();
                     break;
                 case 9:
                     testCase();
@@ -103,6 +108,8 @@ class Exec{
     }
 
     void startLRU() {new LRU(frameNumber,pageList);}
+
+    void startClock() {new LRU_Clock(frameNumber,pageList);}
 
     void testCase(){
         int[] caselist = {7,0,1,2,0,3,0,4,2,3,0,3,2,1,2,0,1,7,0,1};
