@@ -23,7 +23,7 @@ class Exec{
             sc = new Scanner(System.in);
             System.out.println("---------------------Menu----------------------\n" +
                     "(1) : 요구 페이지 입력 (2) : 랜덤 페이지 입력 (3) : 프레임 개수 설정 (0) : 종료\n+" +
-                    "(4) : Page_Replacer.OPT.OPT.FIFO 실행 (5) : Page_Replacer.OPT.OPT 실행 (6) : Page_Replacer.OPT.OPT.LRU 실행 (7) : Clock 실행 (9) : testCase 입력 >> ");
+                    "(4) : FIFO 실행 (5) : OPT 실행 (6) : LRU 실행 (7) : Clock 실행 (9) : testCase 입력 >> ");
             try {
                 menu = sc.nextInt();
                 if(menu == 0)

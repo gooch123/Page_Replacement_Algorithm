@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class OPT extends Replacer {
+    ArrayList<ArrayList<Integer>> frameStatus;
     ArrayList<Integer> pageList;
     ArrayList<Integer> frame;
     int pageFault =0;
@@ -14,6 +15,7 @@ public class OPT extends Replacer {
     int[] frameCount;
 
     public OPT(int frameNum, ArrayList<Integer> list){
+        frameStatus = new ArrayList<ArrayList<Integer>>();
         frameCount = new int[frameNum];
         pageList = new ArrayList<>();
         frame = new ArrayList<>();
@@ -40,8 +42,10 @@ public class OPT extends Replacer {
                     frame.set(farthestIndex,currentPage);
                 }
             }
+            saveFrameStatus();
         }
         System.out.printf("OPT >> pageHit : %3d , pageFault : %3d%n",pageHit,pageFault);
+        frameStatus.stream().forEach(System.out::println);
     }
 
     private int getFarthestIndex(){
@@ -59,6 +63,14 @@ public class OPT extends Replacer {
             }
         }
         return index;
+    }
+
+    private void saveFrameStatus(){
+        ArrayList<Integer> saver = new ArrayList<>();
+        for(int page : frame){
+            saver.add(page);
+        }
+        frameStatus.add(saver);
     }
 
     @Override

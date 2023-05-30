@@ -9,9 +9,11 @@ public class LRU extends Replacer {
     int pageFault = 0;
     int pageHit = 0;
     ArrayList<Integer> pageList,frame;
+    ArrayList<ArrayList<Integer>> frameStatus;
     int[] frameNotReferenceCount;
 
     public LRU(int frameNUm, ArrayList<Integer> list){
+        frameStatus = new ArrayList<ArrayList<Integer>>();
         this.frameNum = frameNUm;
         pageList = new ArrayList<>();
         frameNotReferenceCount = new int[frameNUm];
@@ -37,8 +39,10 @@ public class LRU extends Replacer {
                     frameNotReferenceCount[oldestIndex] =0;
                 }
             }
+            saveFrameStatus();
         }
         System.out.println(String.format("LRU >> pageHit : %3d , pageFault : %3d",pageHit,pageFault));
+        frameStatus.stream().forEach(System.out::println);
     }
 
     private int oldestReferenceFrame(){
@@ -62,6 +66,14 @@ public class LRU extends Replacer {
         } catch (ArrayIndexOutOfBoundsException e){
             //frame 비어있음
         }
+    }
+
+    private void saveFrameStatus(){
+        ArrayList<Integer> saver = new ArrayList<>();
+        for(int page : frame){
+            saver.add(page);
+        }
+        frameStatus.add(saver);
     }
 
     @Override

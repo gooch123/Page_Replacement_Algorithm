@@ -5,12 +5,14 @@ import Page_Replacer.Replacer;
 import java.util.ArrayList;
 
 public class LRU_Clock extends Replacer {
+    ArrayList<ArrayList<Integer>> frameStatus;
     int frameNum, pageHit=0, pageFault=0, bitPointer = 0;
     boolean[] referenceBit;
     ArrayList<Integer> pageList;
     ArrayList<Integer> frame;
 
     public LRU_Clock(int frameNum, ArrayList<Integer> list){
+        frameStatus = new ArrayList<ArrayList<Integer>>();
         this.frameNum = frameNum;
         referenceBit = new boolean[frameNum];
         frame = new ArrayList<>();
@@ -33,8 +35,10 @@ public class LRU_Clock extends Replacer {
                     bitPointer++;
                 }
             }
+            saveFrameStatus();
         }
         System.out.printf("Clock >> pageHit : %d , pageFault : %d%n",pageHit,pageFault);
+        frameStatus.stream().forEach(System.out::println);
     }
 
     private int findNeverReferencedBit(){
@@ -49,6 +53,14 @@ public class LRU_Clock extends Replacer {
             }
         }
         return index;
+    }
+
+    private void saveFrameStatus(){
+        ArrayList<Integer> saver = new ArrayList<>();
+        for(int page : frame){
+            saver.add(page);
+        }
+        frameStatus.add(saver);
     }
 
     @Override
