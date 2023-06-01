@@ -3,6 +3,7 @@ package Page_Replacer.FIFO;
 import Page_Replacer.Replacer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -14,8 +15,10 @@ public class FIFO extends Replacer {
     int frameNum;
     int pageHit =0;
     int frameIndex = 0;
+    ArrayList<int[]> checkerList;
 
     public FIFO(int frameNum, ArrayList<Integer> list){
+        checkerList = new ArrayList<>();
         frameStatus = new ArrayList<>();
         pageList = new ArrayList<>();
         frame = new ArrayList<>();
@@ -30,8 +33,12 @@ public class FIFO extends Replacer {
         for(int currentPage : pageList){
             if(frame.contains(currentPage)){
                 pageHit++;
+                int columnNum = frameIndex % frameNum;
+                checkerList.add(new int[]{columnNum, 1});
             }else{
                 pageFault++;
+                int columnNum = frameIndex % frameNum;
+                checkerList.add(new int[]{columnNum, 0});
                 if(frame.size() < frameNum){
                     frame.add(currentPage);
                 }else{
@@ -42,7 +49,9 @@ public class FIFO extends Replacer {
             saveFrameStatus();
         }
         System.out.printf("FIFO >> pageHit : %3d ,pageFault : %3d%n",pageHit, pageFault);
-        frameStatus.stream().forEach(System.out::println);
+//        frameStatus.stream().forEach(System.out::println);
+        for(int[] i : checkerList)
+            System.out.printf("열 : %d , 체커 : %d%n",i[0],i[1]);
     }
 
     private void saveFrameStatus(){
@@ -56,6 +65,11 @@ public class FIFO extends Replacer {
     @Override
     public ArrayList<ArrayList<Integer>> returnStatus() {
         return frameStatus;
+    }
+
+    @Override
+    public ArrayList<int[]> returnChecker(){
+        return checkerList;
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 public class OPT extends Replacer {
     ArrayList<ArrayList<Integer>> frameStatus;
+    ArrayList<int[]> checkerList;
     ArrayList<Integer> pageList;
     ArrayList<Integer> frame;
     int pageFault =0;
@@ -16,6 +17,7 @@ public class OPT extends Replacer {
 
     public OPT(int frameNum, ArrayList<Integer> list){
         frameStatus = new ArrayList<ArrayList<Integer>>();
+        checkerList = new ArrayList<>();
         frameCount = new int[frameNum];
         pageList = new ArrayList<>();
         frame = new ArrayList<>();
@@ -29,10 +31,13 @@ public class OPT extends Replacer {
     }
 
     private void exec(){
+        for(int i = 0;i<frameNum;i++)
+            checkerList.add(new int[]{i,0});
         while(!pageList.isEmpty()){
             int currentPage = pageList.remove(0);
             if(frame.contains(currentPage)){
                 pageHit++;
+                checkerList.add(new int[]{0,1});
             }else{
                 pageFault++;
                 if(frame.size() < frameNum) {
@@ -40,6 +45,7 @@ public class OPT extends Replacer {
                 }else{ //교체 페이지 찾기
                     int farthestIndex = getFarthestIndex();
                     frame.set(farthestIndex,currentPage);
+                    checkerList.add(new int[]{farthestIndex,0});
                 }
             }
             saveFrameStatus();
@@ -71,6 +77,11 @@ public class OPT extends Replacer {
             saver.add(page);
         }
         frameStatus.add(saver);
+    }
+
+    @Override
+    public ArrayList<int[]> returnChecker() {
+        return checkerList;
     }
 
     @Override

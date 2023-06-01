@@ -10,9 +10,11 @@ public class LRU_Clock extends Replacer {
     boolean[] referenceBit;
     ArrayList<Integer> pageList;
     ArrayList<Integer> frame;
+    ArrayList<int[]> checkerList;
 
     public LRU_Clock(int frameNum, ArrayList<Integer> list){
         frameStatus = new ArrayList<ArrayList<Integer>>();
+        checkerList = new ArrayList<>();
         this.frameNum = frameNum;
         referenceBit = new boolean[frameNum];
         frame = new ArrayList<>();
@@ -22,17 +24,22 @@ public class LRU_Clock extends Replacer {
     }
 
     private void exec(){
+        for(int i=0;i<frameNum;i++)
+            checkerList.add(new int[]{i,0});
         for(int currentPage : pageList){
             if(frame.contains(currentPage)){
                 pageHit++;
                 referenceBit[frame.indexOf(currentPage)] = true;
+                checkerList.add(new int[]{0,1});
             }else{
                 pageFault++;
                 if(frame.size() < frameNum){
                     frame.add(currentPage);
                 }else{ // 페이지 교체 수행
-                    frame.set(findNeverReferencedBit(),currentPage);
+                    int bit_0_index = findNeverReferencedBit();
+                    frame.set(bit_0_index,currentPage);
                     bitPointer++;
+                    checkerList.add(new int[]{bit_0_index,0});
                 }
             }
             saveFrameStatus();
@@ -61,6 +68,11 @@ public class LRU_Clock extends Replacer {
             saver.add(page);
         }
         frameStatus.add(saver);
+    }
+
+    @Override
+    public ArrayList<int[]> returnChecker() {
+        return checkerList;
     }
 
     @Override

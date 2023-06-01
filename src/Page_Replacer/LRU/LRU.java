@@ -10,10 +10,12 @@ public class LRU extends Replacer {
     int pageHit = 0;
     ArrayList<Integer> pageList,frame;
     ArrayList<ArrayList<Integer>> frameStatus;
+    ArrayList<int[]> checkerList;
     int[] frameNotReferenceCount;
 
     public LRU(int frameNUm, ArrayList<Integer> list){
         frameStatus = new ArrayList<ArrayList<Integer>>();
+        checkerList = new ArrayList<>();
         this.frameNum = frameNUm;
         pageList = new ArrayList<>();
         frameNotReferenceCount = new int[frameNUm];
@@ -24,11 +26,14 @@ public class LRU extends Replacer {
     }
 
     private void exec(){
+        for (int i =0;i<frameNum;i++)
+            checkerList.add(new int[]{i,0});
         for(int currentPage : pageList){
             increaseNotReferenceCount();
             if(frame.contains(currentPage)){
                 pageHit++;
                 frameNotReferenceCount[frame.indexOf(currentPage)] = 0;
+                checkerList.add(new int[]{0,1});
             }else{
                 pageFault++;
                 if(frame.size() < frameNum){
@@ -37,6 +42,7 @@ public class LRU extends Replacer {
                     int oldestIndex = oldestReferenceFrame();
                     frame.set(oldestIndex,currentPage);
                     frameNotReferenceCount[oldestIndex] =0;
+                    checkerList.add(new int[]{oldestIndex,0});
                 }
             }
             saveFrameStatus();
@@ -74,6 +80,11 @@ public class LRU extends Replacer {
             saver.add(page);
         }
         frameStatus.add(saver);
+    }
+
+    @Override
+    public ArrayList<int[]> returnChecker() {
+        return checkerList;
     }
 
     @Override
